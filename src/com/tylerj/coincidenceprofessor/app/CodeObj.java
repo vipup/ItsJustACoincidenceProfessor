@@ -26,7 +26,7 @@ public class CodeObj {
         }
     }
 
-    public boolean getIsSrcCodeFile(){
+    public boolean isSrcCodeFile(){
         return isSrcCodeFile;
     }
 

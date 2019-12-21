@@ -7,8 +7,8 @@ public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
 
-        ScoreBot sb = new ScoreBot();
-        sb.processCodeFiles("C:\\Users\\jeffy\\IdeaProjects\\v3\\ItsJustACoincidenceProfessor\\TestCode\\helloWorld.java", false);
+        ScoreBot sb = new ScoreBot("TestCode/helloWorld.java");
+        
 
         // Start all Swing applications on the EDT.
         SwingUtilities.invokeLater(new Runnable() {

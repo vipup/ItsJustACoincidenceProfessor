@@ -48,10 +48,11 @@ public class Utils {
             case GO:
                 return 55;
             case JSON:
-                return 122;
+            	return 122;
+            default:
+            	return 0;
         }
-
-        return 0;
+ 
     }
 
     /**

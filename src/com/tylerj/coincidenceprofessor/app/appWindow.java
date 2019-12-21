@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
+ 
 
 import org.fife.ui.rtextarea.*;
 import org.fife.ui.rsyntaxtextarea.*;
@@ -52,7 +52,7 @@ public class appWindow extends JFrame {
         plagTextArea = new RSyntaxTextArea(4, 20);
         similarityTextArea = new RSyntaxTextArea(2, 20);
         gitResultsTextArea = new RSyntaxTextArea(4, 20);
-        fileChooser = new JFileChooser(new File("C:\\Users\\jeffy\\IdeaProjects\\v3\\ItsJustACoincidenceProfessor\\TestCode"));
+        fileChooser = new JFileChooser(new File("TestCode"));
         fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
         similarityTextArea.setFont(similarityTextArea.getFont().deriveFont(24f));
@@ -75,8 +75,8 @@ public class appWindow extends JFrame {
         setUpListeners();
         updateScore(); updateLikelyhood();
 
-        CodeObj srcFile = sb.srcCodeObj;
-        CodeObj targetFile = sb.targetCodeObjs.get(targetIndex);
+        CodeObj srcFile = sb.getSrcCodeObj();
+        CodeObj targetFile = sb.getTargetCodeObjs().get(targetIndex);
 
         for(int i = 0; i < srcFile.getLines().size(); i++){
             leftTextArea.append(srcFile.getLines().get(i));
@@ -171,7 +171,7 @@ public class appWindow extends JFrame {
                 else{
                     targetIndex--;
                     rightTextArea.setText(null);
-                    CodeObj target = sb.targetCodeObjs.get(targetIndex);
+                    CodeObj target = sb.getTargetCodeObjs().get(targetIndex);
                     for(int i = 0; i < target.getLines().size(); i++){
                         rightTextArea.append(target.getLines().get(i));
                     }
@@ -184,13 +184,13 @@ public class appWindow extends JFrame {
         nextBut.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(targetIndex == sb.targetCodeObjs.size() - 1){
+                if(targetIndex == sb.getTargetCodeObjs().size() - 1){
 
                 }
                 else{
                     targetIndex++;
                     rightTextArea.setText(null);
-                    CodeObj target = sb.targetCodeObjs.get(targetIndex);
+                    CodeObj target = sb.getTargetCodeObjs().get(targetIndex);
                     for(int i = 0; i < target.getLines().size(); i++){
                         String line = target.getLines().get(i);
                         rightTextArea.append(line);
@@ -207,11 +207,12 @@ public class appWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     inGitView = true;
-                    int results = sb.processCodeFiles(sb.srcCodeObj.getFileName(), true);
+                    sb = new ScoreBot(sb.getSrcCodeObj().getFileName(),inGitView);
+                    int results = sb.getTargetCodeObjsSize();//, true
                     targetIndex = 0;
                     updateGitResults(results);
                     if(results > 0){
-                        CodeObj targetFile = sb.targetCodeObjs.get(targetIndex);
+                        CodeObj targetFile = sb.getTargetCodeObjs().get(targetIndex);
                         rightTextArea.setText(null);
                         for(int i = 0; i < targetFile.getLines().size(); i++){
                             rightTextArea.append(targetFile.getLines().get(i));
@@ -237,15 +238,17 @@ public class appWindow extends JFrame {
                 if(action.equals("ApproveSelection")){
                     File f = fileChooser.getSelectedFile();
                     try {
-                        sb.processCodeFiles(f.getAbsolutePath() , inGitView);
+                        //sb.processCodeFiles(f.getAbsolutePath() , inGitView);
+                    	inGitView = false;
+                    	sb = new ScoreBot(f.getAbsolutePath(),inGitView);
 
                         leftTextArea.setText(null);
                         rightTextArea.setText(null);
-                        for(int i = 0; i < sb.srcCodeObj.getLines().size(); i++){
-                            leftTextArea.append(sb.srcCodeObj.getLines().get(i));
+                        for(int i = 0; i < sb.getSrcCodeObj().getLines().size(); i++){
+                            leftTextArea.append(sb.getSrcCodeObj().getLines().get(i));
                         }
-                        for(int i = 0; i < sb.targetCodeObjs.get(0).getLines().size(); i++){
-                            rightTextArea.append(sb.targetCodeObjs.get(0).getLines().get(i));
+                        for(int i = 0; i < sb.getTargetCodeObjs().get(0).getLines().size(); i++){
+                            rightTextArea.append(sb.getTargetCodeObjs().get(0).getLines().get(i));
                         }
                         leftTextArea.setCaretPosition(0);
                         rightTextArea.setCaretPosition(0);
@@ -263,13 +266,13 @@ public class appWindow extends JFrame {
     private void updateScore(){
         similarityTextArea.setText(null);
         similarityTextArea.append("Similarity Score\n");
-        similarityTextArea.append("     "+sb.fileScores[targetIndex] + "%\n");
+        similarityTextArea.append("     "+sb.getFileScores()[targetIndex] + "%\n");
     }
 
     private void updateLikelyhood(){
         plagTextArea.setText(null);
         String howLikelyPlag = "ERROR";
-        float sim = sb.fileScores[targetIndex];
+        float sim = sb.getFileScores()[targetIndex];
         if(sim < thresholdValue){
             howLikelyPlag = "CLEAN";
             plagTextArea.setForeground(Color.black);
